@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Railway Brutal Reverse IP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white">
+
+<div class="max-w-4xl mx-auto mt-10 bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-2xl">
+
+<h1 class="text-3xl font-bold text-center mb-2">Railway Brutal Reverse IP</h1>
+<p class="text-center text-slate-300 mb-6">Fast • Parallel • Multi Provider</p>
+
+<textarea id="ips"
+class="w-full h-40 p-4 bg-slate-900 border border-slate-700 rounded-xl"
+placeholder="Masukkan IP banyak sekaligus...&#10;1.1.1.1&#10;8.8.8.8"></textarea>
+
+<div class="mt-3 text-center">
+<select id="provider" class="bg-slate-900 border border-slate-700 p-2 rounded-xl">
+<option value="auto">Auto</option>
+<option value="yougetsignal">YouGetSignal</option>
+<option value="hackertarget">HackerTarget</option>
+</select>
+</div>
+
+<div class="flex gap-3 justify-center mt-4">
+<button onclick="run()" class="bg-cyan-400 px-5 py-2 rounded-xl text-black font-bold">Start</button>
+<button onclick="clearResult()" class="bg-red-400 px-5 py-2 rounded-xl text-black font-bold">Clear</button>
+<button onclick="copyResult()" class="bg-emerald-400 px-5 py-2 rounded-xl text-black font-bold">Copy</button>
+<button onclick="downloadTxt()" class="bg-yellow-400 px-5 py-2 rounded-xl text-black font-bold">Download</button>
+</div>
+
+<h2 class="text-xl font-semibold mt-6">Status</h2>
+<div id="status" class="bg-slate-900 p-3 rounded-xl border border-slate-700">Idle</div>
+
+<h2 class="text-xl font-semibold mt-6">Result</h2>
+<pre id="result" class="bg-black p-4 rounded-xl border border-slate-700 h-80 overflow-y-auto whitespace-pre-wrap"></pre>
+
+</div>
+
+<script>
+async function run(){
+  const raw = document.getElementById("ips").value.trim();
+  const provider = document.getElementById("provider").value;
+  const ips = raw.split("\n").filter(x => x.trim() !== "");
+
+  if(!ips.length){ alert("Isi IP dulu"); return; }
+
+  document.getElementById("status").innerText = "Processing in brutal mode...🔥";
+
+  const res = await fetch("/scan", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ ips, provider })
+  });
+
+  const text = await res.text();
+  document.getElementById("result").innerText = text;
+}
+
+function clearResult(){
+  document.getElementById("result").innerText = "";
+}
+
+function copyResult(){
+  navigator.clipboard.writeText(
+    document.getElementById("result").innerText
+  );
+  alert("Copied!");
+}
+
+function downloadTxt(){
+  const text = document.getElementById("result").innerText;
+  const blob = new Blob([text],{type:"text/plain"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "railway-reverse-result.txt";
+  a.click();
+}
+</script>
+
+</body>
+</html>
